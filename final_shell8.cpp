@@ -11,18 +11,20 @@
 #include <fstream>
 #include <vector>
 
-std::vector<std::string> split_line(std::string line) {
-	std::vector<std::string> args;
-	std::string delimiter = " ";
-	size_t pos = 0;
-	std::string token;
-	while ((pos = line.find(delimiter)) != std::string::npos) {
-		token = line.substr(0, pos);
-		args.push_back(token);
-		line.erase(0, pos + delimiter.length());
+void file_stats(const std::string filename) {
+	struct stat st;
+	if (stat(filename.c_str(), &st) != 0) {
+		std::cout << "File error" << std::endl;
 	}
-	args.push_back(line);
-	return args;
+	else {
+		std::cout << st.st_uid << "\t";
+		std::cout << st.st_gid << "\t";
+		std::cout << st.st_size << "B" << "\t";
+		std::cout << st.st_atime << "\t";
+		std::cout << st.st_mtime << "\t";
+		std::cout << st.st_ctime << "\t";
+		std::cout << std::endl;
+	}
 }
 
 void write_history(std::string line) {
@@ -42,13 +44,6 @@ void write_history(std::string line) {
 	}
 }
 
-std::string read_line() {
-	std::string line;
-	std::getline(std::cin, line);
-	write_history(line);
-	return line;
-}
-
 int history_cmd(std::vector<std::string> args) {
 	std::ifstream myfile("/home/terolli/history.txt");
 	std::string line;
@@ -64,22 +59,6 @@ int history_cmd(std::vector<std::string> args) {
 	else {
 		std::cout << "Unable to open file" << std::endl;
 		return 1;
-	}
-}
-
-void file_stats(const std::string filename) {
-	struct stat st;
-	if (stat(filename.c_str(), &st) != 0) {
-		std::cout << "File error" << std::endl;
-	}
-	else {
-		std::cout << st.st_uid << "\t";
-		std::cout << st.st_gid << "\t";
-		std::cout << st.st_size << "B" << "\t";
-		std::cout << st.st_atime << "\t";
-		std::cout << st.st_mtime << "\t";
-		std::cout << st.st_ctime << "\t";
-		std::cout << std::endl;
 	}
 }
 
@@ -126,6 +105,27 @@ int chdir_cmd(std::vector<std::string> args) {
 		printwd_cmd(args);
 	}
 	return 1;
+}
+
+std::vector<std::string> split_line(std::string line) {
+	std::vector<std::string> args;
+	std::string delimiter = " ";
+	size_t pos = 0;
+	std::string token;
+	while ((pos = line.find(delimiter)) != std::string::npos) {
+		token = line.substr(0, pos);
+		args.push_back(token);
+		line.erase(0, pos + delimiter.length());
+	}
+	args.push_back(line);
+	return args;
+}
+
+std::string read_line() {
+	std::string line;
+	std::getline(std::cin, line);
+	write_history(line);
+	return line;
 }
 
 int exe(std::vector<std::string> args) {
