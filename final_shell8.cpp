@@ -29,7 +29,8 @@ void file_stats(const std::string filename) {
 
 // save command
 void write_history(std::string line) {
-	std::string name_file = "/home/terolli/history.txt";
+	std::string username = getlogin();
+	std::string name_file = "/home/" + username + "/history.txt";
 	struct stat buffer;
 	if ((stat(name_file.c_str(), &buffer)) == 0) {
 		std::ofstream outfile;
@@ -48,7 +49,8 @@ void write_history(std::string line) {
 // list commands entered in the past
 // args not used, but present for consistency
 int history_cmd(std::vector<std::string> args) {
-	std::ifstream myfile("/home/terolli/history.txt");
+	std::string username = getlogin();
+	std::ifstream myfile("/home/" + username + "/history.txt");
 	std::string line;
 	if (myfile.is_open()) {
 		int counter = 1;
