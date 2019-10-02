@@ -218,5 +218,4 @@ void shell_loop(void) {
 int main() {
 	system("clear"); // clear the terminal
 	shell_loop();
-	return EXIT_SUCCESS;
 }
