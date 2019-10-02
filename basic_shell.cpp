@@ -12,7 +12,7 @@
 #include <vector>
 
 // retrieve file attributes
-void file_stats(const std::string filename) {
+void file_stats(const std::string &filename) {
 	struct stat st;
 	if (stat(filename.c_str(), &st) != 0) {
 		std::cout << "File error" << std::endl;
@@ -28,10 +28,13 @@ void file_stats(const std::string filename) {
 }
 
 // save command
-void write_history(std::string line) {
+void write_history(const std::string &line) {
 	std::string username = getlogin();
+	// the path of history.txt file
 	std::string name_file = "/home/" + username + "/history.txt";
 	struct stat buffer;
+	// check if file exists or not
+	// save user command
 	if ((stat(name_file.c_str(), &buffer)) == 0) {
 		std::ofstream outfile;
 		outfile.open(name_file, std::ios_base::app);
@@ -47,8 +50,7 @@ void write_history(std::string line) {
 }
 
 // list commands entered in the past
-// args not used, but present for consistency
-int history_cmd(std::vector<std::string> args) {
+int history_cmd() {
 	std::string username = getlogin();
 	std::ifstream myfile("/home/" + username + "/history.txt");
 	std::string line;
@@ -68,8 +70,7 @@ int history_cmd(std::vector<std::string> args) {
 }
 
 // list files and directory of a given directory
-// args not used, but present for consistency
-int list_cmd(std::vector<std::string> args) {
+int list_cmd() {
 	std::cout << "name\t\t" << "uid\t" << "gid\t" << "size\t" << "atime\t\t" << "mtime\t\t" << "ctime\t\t" << std::endl;
 	std::cout << std::endl;
 	DIR* dir;
@@ -93,8 +94,7 @@ int list_cmd(std::vector<std::string> args) {
 }
 
 // print current working directory
-// args not used, but present for consistency
-int printwd_cmd(std::vector<std::string> args) {
+int printwd_cmd() {
 	char* ppath = get_current_dir_name();
 	if (ppath == NULL) {
 		std::cout << "Error";
@@ -106,14 +106,14 @@ int printwd_cmd(std::vector<std::string> args) {
 
 
 // change directory
-int chdir_cmd(std::vector<std::string> args) {
+int chdir_cmd(const std::vector<std::string> args) {
 	int rc = chdir(args[1].c_str());
 	if (rc < 0) {
 		std::cout << "Directory not found!!!" << std::endl;
 	}
 	else {
 		std::cout << "Current directory: ";
-		printwd_cmd(args);
+		printwd_cmd();
 	}
 	return 1;
 }
@@ -142,9 +142,8 @@ std::string read_line() {
 }
 
 // run an external program
-int exe(std::vector<std::string> args) {
+int exe(const std::vector<std::string> &args) {
 	pid_t pid;
-	int status;
 	int size = args.size();
 	char* argv[size];
 	int i;
@@ -166,23 +165,23 @@ int exe(std::vector<std::string> args) {
 	else if (pid < 0) {
 		perror("fork error");
 	}
-	else wait(NULL); // parent process waits for child
+	else wait(NULL); //  wait until a state change in the child process
 
 	return 1;
 }
 
-int run(std::vector<std::string> args) {
+int run(const std::vector<std::string> &args) {
 	// run command
 	if (args[0] == "printwd") {
-		printwd_cmd(args);
+		printwd_cmd();
 		return 1;
 	}
 	else if (args[0] == "list") {
-		list_cmd(args);
+		list_cmd();
 		return 1;
 	}
 	else if (args[0] == "history") {
-		history_cmd(args);
+		history_cmd();
 		return 1;
 	}
 	else if (args[0] == "chdir") {
