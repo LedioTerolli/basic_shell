@@ -7,8 +7,8 @@
 #include <string.h>
 #include <dirent.h>
 #include <iostream>
-#include <string>
 #include <fstream>
+#include <string>
 #include <vector>
 
 // retrieve file attributes
@@ -90,7 +90,7 @@ int list_cmd() {
 	}
 
 	closedir(dir);
-	return 0;
+	return 1;
 }
 
 // print current working directory
@@ -98,7 +98,6 @@ int printwd_cmd() {
 	char* ppath = get_current_dir_name();
 	if (ppath == NULL) {
 		std::cout << "Error";
-		return 0;
 	}
 	std::cout << ppath << std::endl;
 	return 1;
@@ -106,7 +105,7 @@ int printwd_cmd() {
 
 
 // change directory
-int chdir_cmd(const std::vector<std::string> args) {
+int chdir_cmd(const std::vector<std::string> &args) {
 	int rc = chdir(args[1].c_str());
 	if (rc < 0) {
 		std::cout << "Directory not found!!!" << std::endl;
@@ -153,8 +152,8 @@ int exe(const std::vector<std::string> &args) {
 		strcpy(arg, args[i].c_str());
 		argv[i] = arg;
 	}
-
 	argv[i] = NULL; // argv terminated by null pointer
+
 	pid = fork();
 	if (pid == 0) { // child process
 		if (execvp(args[0].c_str(), argv) == -1) {
@@ -173,20 +172,16 @@ int exe(const std::vector<std::string> &args) {
 int run(const std::vector<std::string> &args) {
 	// run command
 	if (args[0] == "printwd") {
-		printwd_cmd();
-		return 1;
+		return printwd_cmd();;
 	}
 	else if (args[0] == "list") {
-		list_cmd();
-		return 1;
+		return list_cmd();
 	}
 	else if (args[0] == "history") {
-		history_cmd();
-		return 1;
+		return history_cmd();
 	}
 	else if (args[0] == "chdir") {
-		chdir_cmd(args);
-		return 1;
+		return chdir_cmd(args);
 	}
 	else if (args[0] == "clear") {
 		system("clear");
@@ -196,8 +191,7 @@ int run(const std::vector<std::string> &args) {
 		return 0;
 	}
 	else {
-		exe(args); // run an external program
-		return 1;
+		return exe(args); // run an external program
 	}
 }
 
@@ -207,7 +201,8 @@ void shell_loop(void) {
 	int status;
 
 	do {
-		std::cout << "@SHELL8: ";
+		char* curr_dir = get_current_dir_name();
+		std::cout << "\033[1;32mSHELL@\033[0m"<<curr_dir << ": ";
 		input = read_line(); // get input
 		args = split_line(input); // tokenize input
 		status = run(args);
